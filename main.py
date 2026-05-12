@@ -1,0 +1,77 @@
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+from pymongo import MongoClient
+from datetime import datetime
+import os
+import uvicorn
+app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
+#os.environ para despliegue. Descomente cuando ya probó todo local.
+client = MongoClient(os.environ["MONGO_URI"])
+# TODO: conectarse al cluster Admonsis  
+
+#client = MongoClient("")
+# TODO: conectarse a la base de datos Admonsis  
+db = client["ISIS2304F27202610"]
+
+@app.get("/")
+def inicio():
+    return {"estado": "API funcionando correctamente"}
+
+@app.get("/proveedores")
+def get_proovedores():
+    return list(db["proveedores"].find({},{"_id":0}))
+
+@app.get("/proveedores/{bebida_id}")
+def get_proovedor_bebida(bebida_id: int):
+    proveedor = db["proveedores"].find_one({"bebidas_suministradas":bebida_id},{"_id":0})
+    return proveedor or {}
+
+@app.post("/proveedores")
+def post_proveedor(datos:dict):
+    datos["fecha_registro"] = datetime.now().isoformat()
+    db["proveedores"].insert_one(datos)
+    return {"mensaje": "Proveedor registrado"}
+
+@app.put("/proveedores/{nombre}")
+def update_proveedor(nombre:str, datos:dict):
+    resultado = db["proveedores"].replace_one({"nombre": nombre},datos)
+    return {"mensaje":"Proveedor actualizado correctamente"}
+
+@app.patch("/proveedores/{nombre}")
+def patch_proveedor(nombre:str, datos:dict):
+    resultado = db["proveedores"].update_one({"nombre":nombre},{"$set":datos})
+    return {"mensaje":"Campos actualizados correctamente"}
+
+@app.delete("/proveedores/{nombre}")
+def delete_proveedor(nombre:str):
+    resultado = db["proveedores"].delete_one({"nombre":nombre})
+    return {"mensaje":f"Proveedor {nombre} eliminado"}
+
+@app.get('/bares/{bar_id}/comentarios')
+def get_comentarios(bar_id: int):
+    comentarios = None  # TODO: completar
+    return comentarios
+
+@app.post('/bares/{bar_id}/comentarios')
+def post_comentario(bar_id: int, datos: dict):
+    datos['bar_id'] = bar_id
+    datos['fecha']  = datetime.now().isoformat()
+    # TODO: completar
+    return {'mensaje': 'Comentario guardado'}
+
+
+
+# TODO: implementar GET /bares/{bar_id}/eventos
+# Debe retornar todos los eventos del bar desde la colección 'eventos'
+
+# TODO: implementar POST /bares/{bar_id}/eventos  
+# Debe insertar el evento en la colección 'eventos'
+# Recuerde agregar bar_id y fecha_creacion al documento antes de insertar
