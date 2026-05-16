@@ -85,7 +85,7 @@ def post_comentario(bar_id: int, datos: dict):
 
 @app.get('/bares/{bar_id}/eventos')
 def get_eventos(bar_id:int):
-    eventos = db["eventos"].find_one({"bar_id":bar_id}, {"_id":0})
+    eventos = db["eventos"].find({"bar_id":bar_id}, {"_id":0})
     return eventos or {}
 
 # TODO: implementar POST /bares/{bar_id}/eventos  
