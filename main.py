@@ -15,11 +15,11 @@ app.add_middleware(
 
 #os.environ para despliegue. Descomente cuando ya probó todo local.
 #Conexion API
-client = MongoClient(os.environ["MONGO_URI"])
+#client = MongoClient(os.environ["MONGO_URI"])
 # TODO: conectarse al cluster Admonsis  
 
 #Host local
-#client = MongoClient("")
+client = MongoClient("mongodb://ISIS2304F27202610:Y5X4Ku2ekSCh@157.253.236.88:8087")
 # TODO: conectarse a la base de datos Admonsis  
 db = client["ISIS2304F27202610"]
 
@@ -85,8 +85,7 @@ def post_comentario(bar_id: int, datos: dict):
 
 @app.get('/bares/{bar_id}/eventos')
 def get_eventos(bar_id:int):
-    eventos = db["eventos"].find({"bar_id":bar_id}, {"_id":0})
-    return eventos or {}
+    return list(db["eventos"].find({"bar_id":bar_id}, {"_id":0}))
 
 # TODO: implementar POST /bares/{bar_id}/eventos  
 # Debe insertar el evento en la colección 'eventos'
