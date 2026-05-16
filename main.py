@@ -17,7 +17,7 @@ app.add_middleware(
 client = MongoClient(os.environ["MONGO_URI"])
 # TODO: conectarse al cluster Admonsis  
 
-client = MongoClient("")
+#client = MongoClient("")
 # TODO: conectarse a la base de datos Admonsis  
 db = client["ISIS2304F27202610"]
 
@@ -67,7 +67,7 @@ def get_bar(bar_id: int):
 @app.get('/bares/{bar_id}/comentarios')
 def get_comentarios(bar_id: int):
     comentarios = db["Bares"].find_one({"_id":bar_id},{"comentarios_bares":1,"_id":0})  # TODO: completar
-    return comentarios.get("comentarios_bares",[])
+    return comentarios.get("comentarios_bares",[])  
 
 @app.post('/bares/{bar_id}/comentarios')
 
