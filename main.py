@@ -14,10 +14,10 @@ app.add_middleware(
 )
 
 #os.environ para despliegue. Descomente cuando ya probó todo local.
-client = MongoClient(os.environ["MONGO_URI"])
+#client = MongoClient(os.environ["MONGO_URI"])
 # TODO: conectarse al cluster Admonsis  
 
-#client = MongoClient("")
+client = MongoClient("mongodb://ISIS2304F27202610:Y5X4Ku2ekSCh@157.253.236.88:8087")
 # TODO: conectarse a la base de datos Admonsis  
 db = client["ISIS2304F27202610"]
 
@@ -55,17 +55,30 @@ def delete_proveedor(nombre:str):
     resultado = db["proveedores"].delete_one({"nombre":nombre})
     return {"mensaje":f"Proveedor {nombre} eliminado"}
 
+@app.get("/bares")
+def get_bares():
+    return list(db["Bares"].find({},{"_id":0}))
+
+@app.get('/bares/{bar_id}')
+def get_bar(bar_id: int):
+    bares = db["Bares"].find_one({"_id":bar_id},{"_id":0})  # TODO: completar
+    return bares or {}
+
 @app.get('/bares/{bar_id}/comentarios')
 def get_comentarios(bar_id: int):
-    comentarios = None  # TODO: completar
-    return comentarios
+    comentarios = db["Bares"].find_one({"_id":bar_id},{"comentarios_bares":1,"_id":0})  # TODO: completar
+    return comentarios.get("comentarios_bares",[]) or {}
 
 @app.post('/bares/{bar_id}/comentarios')
+
 def post_comentario(bar_id: int, datos: dict):
     datos['bar_id'] = bar_id
-    datos['fecha']  = datetime.now().isoformat()
+    datos['date']  = datetime.now().isoformat()
     # TODO: completar
+    db["Bares"].update_one({"_id":bar_id},{"$push":{"comentarios_bares":datos}})
     return {'mensaje': 'Comentario guardado'}
+
+
 
 
 
